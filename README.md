@@ -1,2 +1,139 @@
 # 6.CI_AWS
 Continuous Integration using AWS services
+
+
+### Scenario:
+  - Agile SDLC.
+  - Developers make regular code changes.
+  - These commits need to be built and tested.
+  - Usually build and release team will do this job or the Developer's responsibility to merge and integrate code.
+
+### Problem:
+  - In Agile SDLC, there will be frequent code changes.
+  - Not so frequently the code will be tested, which will accumulate bugs and errors in the code.
+  - Developers need to rework to fix these bugs and errors.
+  - Manual build and release process. Inter team dependencies.
+
+### Solution:
+  - Build and test for every commit.
+  - Automated process.
+  - Notify for every build status.
+  - Fix code if bugs or errors are found instantly rather than waiting.
+
+### Problem with CI server:
+  - CI server maintenance.
+  - Operational overhead to maintain server like Jenkins, Nexus, Sonar, Git, etc..
+
+### Solution:
+  - Cloud services for CI to remove Operational overhead.
+
+### Benefits:
+  - Short mean time to repair.
+  - Agile.
+  - No human intervention.
+  - Fault isolation.
+  - No Ops.
+
+### Services and Tools used:
+  - AWS Code Commit - VCS.
+  - AWS Code Artifact - Maven repo for dependencies.
+  - AWS Code Build - Build service.
+  - AWS Code Deploy - Artifact deployment service.
+  - Sonar cloud - Code analysis.
+  - Checkstyle analysis.
+  - AWS Code Pipeline.
+  - AWS S3.
+
+### Architecture:
+![Architecture]()--------------------------------------------
+
+### Flow of execution:
+  1. Login to AWS.
+  2. Code Commit:
+    - Create repository.
+    - Create IAM user with Code commit policy.
+    - Install AWS CLI in Git bash and configure it.
+    - Generate SSH keys locally.
+    - Exchange keys with IAM user.
+    - Migrate source code from Github repo to code commit repo.
+  3. Code Artifact:
+    - Create repo for maven dependencies.
+    - Export Auth token.
+    - Update settings.xml and pom.xml files.
+  4. Sonar cloud:
+    - Create account.
+    - Generate token.
+    - Create SSM parameters with Sonar details in AWS.
+  5. Code Build:
+    - Create build project.
+    - Update code build role to access SSM parameter store.
+  6. Create SNS topic.
+  7. Create pipeline:
+    - Code Commit.
+    - Test code.
+    - Build.
+    - Deploy to S3 bucket.
+  8. Test pipeline.
+
+### Detailed steps:
+  #### Code Commit:
+  - AWS Code Commit => create repo => vprofile-code-repo(name) => create.
+  ![CodeRepo]()------------------------------------
+  - AWS IAM => user => create => vprofile-code-admin(name) => attach policies directly => create policy => select Code Commit => select all(full access) => add ARN => this account => type region => type repo (vprofile-code-repo) => next => give name => create => select newly created policy => create user.
+  - Select newly created user => security credentials => create access keys => command line interface => download csv.
+  - In git bash => $`aws configure` => give access key, secret key, region and format(json).
+  - Generate SSH keys => $`ssh-keygen` => give name(PATH/vpro-codecommit_rsa) => enter.
+  - Copy public key $`cat ~/.ssh/vpro-codecommit_rsa.pub` and paste it in IAM SSH pub keys.
+  - Create ssh config file for authentication $`vim ~/.ssh/config` and type as below:
+    ############################################
+    Host git-codecommit.*.amazonaws.com
+      User YOUR-SSH-KEY-ID-FROM-IAM-USER
+      IdentifyFile ~/.ssh/vpro-codecommit_rsa
+    ############################################
+  - Save and close.
+  - Check the connection $`ssh git-codecommit.<region>.amazonaws.com` and see that it is successfully authenticated.
+  ![SSHAuth]()-------------------------------
+  - Clone the source code $`git clone <url>`.
+  - List the branches $`git branch -a` and checkout ci-aws branch $`git checkout ci-aws`.
+  - Remove git remote origin $`git remote rm origin`.
+  - Add AWS code commit remote origin $`git remote add origin <URL of code commit repo>`.
+  - Check that remote origin is correctly configured $`cat .git/config`.
+  - Push the source code to Code commit $`git push origin --all`.
+  - Check the Code commit repository.
+
+  #### Code Artifact:
+  - AWS Code Artifact => create repo => vprofile-maven-repo(name) => select maven central store => give domain name => next => create.
+  
+  #### Sonar cloud:
+  - Login using Github => my account => security => give token name => generate token => copy and save it.
+  - Create / open organization => analyze new project => create project manually => vprofile-key(name and key) => next => previous version => create => copy project key and organization and save it.
+  - AWS Systems manager => parameter store => create parameter => Organization and its key => create parameter => host and its key(https://sonarcloud.io) => create parameter => project and its key => create parameter => login and its key(sonar token) (These parameter names can be found in Sonar build spec file ----PATH---).
+
+  #### Code Build:
+  - Open the cloned repo in VS code.
+  - Open maven central repo => view connection instructions => copy url of maven central repo => paste it in pom.xml and also in settings.xml (profiles and mirrors).
+  - Rename sonar-buildspec.yml(----PATH----) file to buildspec.yml and move to the root directory where pom.xml is present.
+  - In buildspec.yml update export auth token command from maven central repo view connection instructions.
+  - Commit and push to Code commit => check the changes made.
+  - Code build => create => vpro-code-analysis(name) => select Code commit => ci-aws branch => Ubuntu, standard, 5.0 => edit service role name to your convenient to access it in future => use buildspec file => cloud watch => vprofie-nvir-codebuild(group name) => sonarCodeAnalysis(stream name) => build project.
+  - The build will fail because, it does not have access to parameter store. So, we have to edit service role and give access.
+  - IAM => select the code build service role which was created in previous build => createpolicy => systems manager => in list (describe parameter) => in read (describe document parameter, get parameter, get parameters, get parameters by path and get parameter history) => next => vprofile-parameter-read-permission(name) => create => attach policy to code build role and also attach Code artifact read only access => Run the build job.
+  - Check Sonar cloud.
+  - In build_buildspec file, update export auth token command from maven central repo.
+  - Code Build => create => vprofile-build-artifact(name) => select Code commit => ci-aws branch => Ubuntu, standard, 5.0 => edit service role name to your convenient to access it in future => use buildspec file => path aws-files/build_buildspec.yml => logs => group name same as previous(vprofie-nvir-codebuild) => buildArtifact (stream name).
+  - IAM => select service role which was created from previous build => add => build artifact read only access => attach.
+  - Run the job.
+
+  #### Code Pipeline:
+  - S3 => create bucket => give unique name => same region => create => open the bucket => create folder (pipeline-artifacts).
+  - SNS => create => standard => vprofile-pipeline-notifications(name) => create => create subscription => email => mail id => create => open your email inbox and confirm.
+  - Code pipeline => create => edit service role name to your convenient to access it in future => next => source code commit => branch ci-aws => cloudwatch events => code build => build artifact => skip deploy => create pipeline => stop execution => stop.
+  - Edit the pipeline => add stage after code commit => add action sonarCodeAnalysis => Code build => source Artifact => vpro-code-analysis => done.
+  - Add stage at end => deploy => add action => deploy to S3 => build artifact => bucket name => key (folder name) => extract before deploy => done => save.
+  - Pipeline settings => notification => create => vprofile-ci-notification => select all => select SNS topic => submit.
+  - Release change.
+  - Do some changes in the code => commit and push => check the pipeline which should be triggered automatically when there is a commit.
+  - check the artifact in S3 bucket.
+
+### Credits:
+  - https://github.com/hkhcoder/vprofile-project
