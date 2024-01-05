@@ -11,7 +11,7 @@
     </servers>
 <profiles>
   <profile>
-    <id>infinitydev-maven-central-store</id>
+    <id>default</id>
     <activation>
       <activeByDefault>true</activeByDefault>
     </activation>
