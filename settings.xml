@@ -28,7 +28,7 @@
     </activeProfiles>
 <mirrors>
   <mirror>
-    <id>infinitydev-maven-central-store</id>
+    <id>codeartifact</id>
     <name>infinitydev-maven-central-store</name>
     <url>https://infinitydev-306409327931.d.codeartifact.us-east-1.amazonaws.com/maven/maven-central-store/</url>
     <mirrorOf>*</mirrorOf>
