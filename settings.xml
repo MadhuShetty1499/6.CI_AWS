@@ -17,7 +17,7 @@
     </activation>
     <repositories>
       <repository>
-        <id>infinitydev-maven-central-store</id>
+        <id>codeartifact</id>
         <url>https://infinitydev-306409327931.d.codeartifact.us-east-1.amazonaws.com/maven/maven-central-store/</url>
       </repository>
     </repositories>
