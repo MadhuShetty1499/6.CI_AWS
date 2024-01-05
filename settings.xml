@@ -11,11 +11,14 @@
     </servers>
 <profiles>
   <profile>
-    <id>default</id>
+    <id>infinitydev-maven-central-store</id>
+    <activation>
+      <activeByDefault>true</activeByDefault>
+    </activation>
     <repositories>
       <repository>
-        <id>codeartifact</id>
-    <url>https://domain-accountid.d.codeartifact.region.amazonaws.com/maven/maven-central-store/</url>
+        <id>infinitydev-maven-central-store</id>
+        <url>https://infinitydev-306409327931.d.codeartifact.us-east-1.amazonaws.com/maven/maven-central-store/</url>
       </repository>
     </repositories>
   </profile>
@@ -25,9 +28,9 @@
     </activeProfiles>
 <mirrors>
   <mirror>
-    <id>codeartifact</id>
-    <name>domainname--maven-central-store</name>
-    <url>https://domain-accountdid.d.codeartifact.region.amazonaws.com/maven/maven-central-store/</url>
+    <id>infinitydev-maven-central-store</id>
+    <name>infinitydev-maven-central-store</name>
+    <url>https://infinitydev-306409327931.d.codeartifact.us-east-1.amazonaws.com/maven/maven-central-store/</url>
     <mirrorOf>*</mirrorOf>
   </mirror>
 </mirrors>
