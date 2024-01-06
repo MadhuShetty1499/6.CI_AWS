@@ -1,6 +1,5 @@
-# 6.CI_AWS
-Continuous Integration using AWS services
-
+# Project-6: Continuous Integration on AWS Cloud
+Inspired by the previous project ([Project-5](https://github.com/MadhuShetty1499/5.CI_Jenkins_and_tools)) reliance on Jenkins, Nexus, Sonar, and Git for CI, I've led a transition to a cloud-native CI infrastructure using AWS services. Leveraging tools like CodeCommit, CodeBuild, CodeDeploy, and CodePipeline, this shift enhances efficiency and automation in managing code commits, builds, tests, and deployments. The move to AWS significantly reduces operational overhead, ensuring faster bug resolution and improved agility within an Agile SDLC, marking a pivotal evolution in our development practices.
 
 ### Scenario:
   - Agile SDLC.
@@ -83,12 +82,7 @@ Continuous Integration using AWS services
   - In git bash => $`aws configure` => give access key, secret key, region and format(json).
   - Generate SSH keys => $`ssh-keygen` => give name(PATH/vpro-codecommit_rsa) => enter.
   - Copy public key $`cat ~/.ssh/vpro-codecommit_rsa.pub` and paste it in IAM SSH pub keys.
-  - Create ssh config file for authentication $`vim ~/.ssh/config` and type as below:
-    ############################################
-    Host git-codecommit.*.amazonaws.com
-      User YOUR-SSH-KEY-ID-FROM-IAM-USER
-      IdentifyFile ~/.ssh/vpro-codecommit_rsa
-    ############################################
+  - Create ssh config file for authentication $`vim ~/.ssh/config` and type as in [SSH_config](https://github.com/MadhuShetty1499/6.CI_AWS/blob/ci-aws/aws-files/ssh_config_file)
   - Save and close.
   - Check the connection $`ssh git-codecommit.<region>.amazonaws.com` and see that it is successfully authenticated.
   - Clone the source code $`git clone https://github.com/MadhuShetty1499/6.CI_AWS.git`.
