@@ -82,7 +82,7 @@ Inspired by the previous project ([Project-5](https://github.com/MadhuShetty1499
   - In git bash => $`aws configure` => give access key, secret key, region and format(json).
   - Generate SSH keys => $`ssh-keygen` => give name(PATH/vpro-codecommit_rsa) => enter.
   - Copy public key $`cat ~/.ssh/vpro-codecommit_rsa.pub` and paste it in IAM SSH pub keys.
-  - Create ssh config file for authentication $`vim ~/.ssh/config` and type as in [SSH_config](https://github.com/MadhuShetty1499/6.CI_AWS/blob/ci-aws/aws-files/ssh_config_file)
+  - Create ssh config file for authentication $`vim ~/.ssh/config` and type as in [SSH_config](https://github.com/MadhuShetty1499/6.CI_AWS/blob/ci-aws/aws-files/ssh_config_file).
   - Save and close.
   - Check the connection $`ssh git-codecommit.<region>.amazonaws.com` and see that it is successfully authenticated.
   - Clone the source code $`git clone https://github.com/MadhuShetty1499/6.CI_AWS.git`.
